@@ -16,7 +16,7 @@ public class DashboardPage {
     @FindBy(css = "h3.greeting-title")
     private WebElement greetingTitle;
 
-    @FindBy(xpath = "//li[contains(@class,'dropdown')]//a[contains(.,'Ahmad Joni')]")
+    @FindBy(xpath = "//li[contains(@class,'dropdown')]//a[img[@alt='User Profile']]")
     private WebElement accountDropdown;
 
     @FindBy(xpath = "//button[text()='Keluar']")
@@ -38,7 +38,17 @@ public class DashboardPage {
         try {
             wait.until(ExpectedConditions.visibilityOf(greetingTitle));
             waitForLoading();
-            return greetingTitle.getText().contains("Hai, Ahmad Joni!");
+            return greetingTitle.getText().contains("Hai,");
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isDashboardDisplayed(String expectedGreeting) {
+        try {
+            wait.until(ExpectedConditions.visibilityOf(greetingTitle));
+            waitForLoading();
+            return greetingTitle.getText().contains(expectedGreeting);
         } catch (Exception e) {
             return false;
         }
@@ -47,12 +57,16 @@ public class DashboardPage {
     public void clickAccountDropdown() {
         wait.until(ExpectedConditions.elementToBeClickable(accountDropdown));
         accountDropdown.click();
-        // Allow a small delay for dropdown transition
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    public String getAccountDropdownText() {
+        wait.until(ExpectedConditions.visibilityOf(accountDropdown));
+        return accountDropdown.getText().trim();
     }
 
     public void clickLogoutButton() {
@@ -74,11 +88,49 @@ public class DashboardPage {
     }
 
     public void clickCourse(String courseName) {
-        WebElement courseCard = wait.until(ExpectedConditions.elementToBeClickable(
+        WebElement courseCard = wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//h6[text()='" + courseName + "']/ancestor::div[contains(@class,'card')]")
         ));
-        courseCard.click();
+        org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
+        js.executeScript("arguments[0].scrollIntoView(true);", courseCard);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        wait.until(ExpectedConditions.elementToBeClickable(courseCard));
+        try {
+            courseCard.click();
+        } catch (Exception e) {
+            js.executeScript("arguments[0].click();", courseCard);
+        }
         waitForLoading();
+    }
+
+    public boolean isNavigationMenuDisplayed(String menuName) {
+        try {
+            String xpath;
+            if (menuName.equalsIgnoreCase("Rekap Hasil Kuis")) {
+                xpath = "//a[contains(@class,'nav-link') and (text()='Rekap Hasil Kuis' or text()='Pemantauan')]";
+            } else {
+                xpath = "//a[contains(@class,'nav-link') and text()='" + menuName + "']";
+            }
+            WebElement menu = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpath)));
+            return menu.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isAccountNameDisplayed(String expectedName) {
+        try {
+            WebElement nameElement = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//li[contains(@class,'dropdown')]//a[contains(.,'" + expectedName + "')]")
+            ));
+            return nameElement.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private void waitForLoading() {

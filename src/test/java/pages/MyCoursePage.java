@@ -37,13 +37,61 @@ public class MyCoursePage {
         waitForLoading();
     }
 
+    public boolean isTabActive(String tabName) {
+        if (tabName.equalsIgnoreCase("Dalam Progres")) {
+            wait.until(ExpectedConditions.visibilityOf(inprogressTab));
+            return inprogressTab.getAttribute("class").contains("active");
+        } else if (tabName.equalsIgnoreCase("Selesai")) {
+            wait.until(ExpectedConditions.visibilityOf(completedTab));
+            return completedTab.getAttribute("class").contains("active");
+        }
+        return false;
+    }
+
+    public String getEmptyTabMessage(String tabName) {
+        String xpath;
+        if (tabName.equalsIgnoreCase("Dalam Progres")) {
+            xpath = "//div[@id='inprogress']//p";
+        } else {
+            xpath = "//div[@id='completed']//p";
+        }
+        WebElement msg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
+        return msg.getText().trim();
+    }
+
+    public boolean isAnyCourseCardDisplayed(String tabName) {
+        String xpath;
+        if (tabName.equalsIgnoreCase("Dalam Progres")) {
+            xpath = "//div[@id='inprogress']//div[contains(@class,'card')]";
+        } else {
+            xpath = "//div[@id='completed']//div[contains(@class,'card')]";
+        }
+        return driver.findElements(By.xpath(xpath)).size() > 0;
+    }
+
+    public boolean isTabClickable(String tabName) {
+        try {
+            if (tabName.equalsIgnoreCase("Dalam Progres")) {
+                wait.until(ExpectedConditions.elementToBeClickable(inprogressTab));
+                return inprogressTab.isEnabled();
+            } else if (tabName.equalsIgnoreCase("Selesai")) {
+                wait.until(ExpectedConditions.elementToBeClickable(completedTab));
+                return completedTab.isEnabled();
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
+    }
+
     public boolean isCourseInTab(String courseName, String tabId) {
         String xpathExpr = String.format("//div[@id='%s']//h6[text()='%s']", tabId, courseName);
         return driver.findElements(By.xpath(xpathExpr)).size() > 0;
     }
 
     public String getCourseProgressPercentage(String courseName) {
-        String xpathExpr = String.format("//h6[text()='%s']/..//span[contains(@class,'progress-percentage')]", courseName);
+        String xpathExpr = String.format("//h6[text()='%s']/..//span[contains(@class,'progress-percentage')]",
+                courseName);
         WebElement progressText = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpathExpr)));
         return progressText.getText().trim();
     }
