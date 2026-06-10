@@ -10,6 +10,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.DashboardPage;
+import pages.LoginPage;
 import pages.CoursePage;
 import pages.MyCoursePage;
 import utils.DriverFactory;
@@ -43,33 +44,27 @@ public class MyCourseSteps {
 
     @Given("a new student account exists with no enrolled courses")
     public void aNewStudentAccountExistsWithNoEnrolledCourses() {
-        // Restart driver to get a fresh browser after potentially long previous tests
-        DriverFactory.quitDriver();
-        driver = DriverFactory.getDriver();
+        // DO NOT quit/restart driver here to preserve existing driver lifecycle managed by Hooks
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
         org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
         try {
-            driver.get("https://polban-space.cloudias79.com/jtk-learn/");
-            Thread.sleep(1500);
-
-            WebElement emailInput = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@type='email']")));
-            emailInput.clear();
-            emailInput.sendKeys("admin@example.com");
-            WebElement passwordInput = driver.findElement(By.xpath("//input[@type='password']"));
-            passwordInput.clear();
-            passwordInput.sendKeys("admin");
-            driver.findElement(By.xpath("//button[@type='submit' or text()='Masuk']")).click();
+            // Sederhanakan proses login admin dengan LoginPage
+            LoginPage loginPage = new LoginPage(driver);
+            loginPage.navigateToLoginPage();
+            loginPage.login("admin@example.com", "admin");
 
             wait.until(ExpectedConditions.urlContains("dashboard-admin"));
             driver.get("https://polban-space.cloudias79.com/jtk-learn/users");
             Thread.sleep(3000);
 
-            // Delete if exists
-            java.util.List<WebElement> rows = driver.findElements(By.xpath("//tr[td[text()='Pendaftaran Baru'] and td[text()='pelajar']]"));
+            // Delete if exists - use exact text match for "Pendaftaran Baru" and "pelajar"
+            java.util.List<WebElement> rows = driver.findElements(
+                    By.xpath("//tbody/tr[td[normalize-space(text())='Pendaftaran Baru'] and td[normalize-space(text())='pelajar']]"));
             if (!rows.isEmpty()) {
+                System.out.println("DEBUG: Found existing Pendaftaran Baru user. Deleting...");
                 WebElement deleteBtn = rows.get(0).findElement(By.xpath(".//button[img[@alt='Hapus Pengguna']]"));
-                js.executeScript("arguments[0].scrollIntoView(true);", deleteBtn);
-                Thread.sleep(500);
+                js.executeScript("arguments[0].scrollIntoView({block:'center'});", deleteBtn);
+                Thread.sleep(700);
                 js.executeScript("arguments[0].click();", deleteBtn);
                 Thread.sleep(1500);
 
@@ -80,6 +75,10 @@ public class MyCourseSteps {
                 // Click SweetAlert OK after deletion
                 clickSweetAlertConfirm(wait, "OK");
                 Thread.sleep(1500);
+
+                // Reload users page to ensure clean state
+                driver.get("https://polban-space.cloudias79.com/jtk-learn/users");
+                Thread.sleep(2000);
             }
 
             // Create user
@@ -88,10 +87,16 @@ public class MyCourseSteps {
             Thread.sleep(1500);
 
             WebElement nameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("nama")));
+            nameField.clear();
             nameField.sendKeys("Pendaftaran Baru");
 
-            driver.findElement(By.name("email")).sendKeys("pendaftaran_baru@example.com");
-            driver.findElement(By.name("password")).sendKeys("admin123");
+            WebElement emailField = driver.findElement(By.name("email"));
+            emailField.clear();
+            emailField.sendKeys("pendaftaran_baru@example.com");
+
+            WebElement pwdField = driver.findElement(By.name("password"));
+            pwdField.clear();
+            pwdField.sendKeys("admin123");
 
             WebElement maleRadio = driver.findElement(By.xpath("//input[@name='jenis_kelamin' and @value='L']"));
             if (!maleRadio.isSelected()) {
@@ -99,7 +104,10 @@ public class MyCourseSteps {
             }
 
             new org.openqa.selenium.support.ui.Select(driver.findElement(By.name("role"))).selectByValue("pelajar");
-            driver.findElement(By.name("alamat")).sendKeys("Politeknik Negeri Bandung");
+            
+            WebElement addressField = driver.findElement(By.name("alamat"));
+            addressField.clear();
+            addressField.sendKeys("Politeknik Negeri Bandung");
 
             WebElement submitBtn = driver.findElement(By.xpath("//form//button[@type='submit' or text()='Simpan']"));
             js.executeScript("arguments[0].click();", submitBtn);
@@ -110,10 +118,12 @@ public class MyCourseSteps {
             Thread.sleep(1500);
 
             // Log out admin to prepare for student login
-            WebElement profileDropdown = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//li[contains(@class,'dropdown')]//a[img[@alt='User Profile']]")));
+            WebElement profileDropdown = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.xpath("//li[contains(@class,'dropdown')]//a[img[@alt='User Profile']]")));
             js.executeScript("arguments[0].click();", profileDropdown);
-            Thread.sleep(500);
-            WebElement logoutBtn = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[text()='Keluar']")));
+            Thread.sleep(600);
+            WebElement logoutBtn = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.xpath("//button[text()='Keluar']")));
             js.executeScript("arguments[0].click();", logoutBtn);
             Thread.sleep(1500);
 
