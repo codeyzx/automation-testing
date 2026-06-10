@@ -20,15 +20,7 @@ public class InstructorLoginSteps {
         loginPage.navigateToLoginPage();
     }
 
-    @When("user enters email {string}")
-    public void userEntersEmail(String email) {
-        loginPage.enterEmail(email);
-    }
 
-    @And("user enters password {string}")
-    public void userEntersPassword(String password) {
-        loginPage.enterPassword(password);
-    }
 
     @And("user clicks Masuk button")
     public void userClicksMasukButton() {

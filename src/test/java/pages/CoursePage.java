@@ -13,7 +13,7 @@ public class CoursePage {
     private WebDriver driver;
     private WebDriverWait wait;
 
-    @FindBy(xpath = "//*[contains(@class,'button-overview') or contains(text(),'Kursus') or contains(text(),'Lihat')]")
+    @FindBy(xpath = "//button[contains(@class,'button-overview') or contains(text(),'Kursus') or contains(text(),'Lihat')]")
     private WebElement startOrContinueCourseButton;
 
     @FindBy(css = "h3.course-title")

@@ -143,6 +143,20 @@ public class MyCourseSteps {
     public void userOpensCourse(String courseName) {
         dashboardPage.isDashboardDisplayed();
         dashboardPage.clickCourse(courseName);
+        
+        // Wait briefly for URL to update to my-courses if a redirect occurs
+        try {
+            new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
+                    .until(org.openqa.selenium.support.ui.ExpectedConditions.urlContains("my-courses"));
+        } catch (Exception e) {
+            // Ignore if it goes directly to course detail or stays on dashboard
+        }
+        
+        // If the click redirects to my-courses list page, click the course card again to enter study room
+        if (driver.getCurrentUrl().contains("my-courses")) {
+            System.out.println("Redirected to my-courses. Clicking the course card again to enter study room.");
+            dashboardPage.clickCourse(courseName);
+        }
     }
 
     @When("user completes instruction {string}")
