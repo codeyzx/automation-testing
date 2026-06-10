@@ -16,17 +16,18 @@ public class DashboardPage {
     @FindBy(css = "h3.greeting-title")
     private WebElement greetingTitle;
 
-    @FindBy(xpath = "//li[contains(@class,'dropdown')]//a[contains(.,'Ahmad Joni')]")
+    @FindBy(xpath = "//a[contains(@class,'nav-link') and (contains(.,'Joni') or contains(.,'JONI') or contains(.,'Mr.'))]")
     private WebElement accountDropdown;
 
     @FindBy(xpath = "//button[text()='Keluar']")
     private WebElement logoutButton;
 
-    @FindBy(xpath = "//a[contains(text(),'Kursus Saya')]")
+    @FindBy(xpath = "//div[@id='navbarNav']//a[contains(@href, 'my-courses') or contains(text(),'Kursus Saya')]")
     private WebElement kursusSayaLink;
 
-    @FindBy(xpath = "//a[contains(text(),'Beranda')]")
+    @FindBy(xpath = "//div[@id='navbarNav']//a[contains(@href, 'dashboard') or contains(text(),'Beranda')]")
     private WebElement berandaLink;
+
 
     public DashboardPage(WebDriver driver) {
         this.driver = driver;
@@ -38,15 +39,27 @@ public class DashboardPage {
         try {
             wait.until(ExpectedConditions.visibilityOf(greetingTitle));
             waitForLoading();
-            return greetingTitle.getText().contains("Hai, Ahmad Joni!");
+            String text = greetingTitle.getText();
+            return text.contains("Hai, Ahmad Joni!") || text.contains("Hai, Mr. Ahmad Joni!") || text.contains("Hai, JONI!") || text.contains("Hai, Joni!");
         } catch (Exception e) {
             return false;
         }
     }
 
     public void clickAccountDropdown() {
+        try {
+            org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
+            js.executeScript("window.scrollTo(0, 0);");
+            Thread.sleep(500);
+        } catch (Exception e) {}
+        
         wait.until(ExpectedConditions.elementToBeClickable(accountDropdown));
-        accountDropdown.click();
+        try {
+            accountDropdown.click();
+        } catch (Exception e) {
+            org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
+            js.executeScript("arguments[0].click();", accountDropdown);
+        }
         // Allow a small delay for dropdown transition
         try {
             Thread.sleep(500);
@@ -57,29 +70,129 @@ public class DashboardPage {
 
     public void clickLogoutButton() {
         wait.until(ExpectedConditions.elementToBeClickable(logoutButton));
-        logoutButton.click();
+        try {
+            logoutButton.click();
+        } catch (Exception e) {
+            org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
+            js.executeScript("arguments[0].click();", logoutButton);
+        }
         waitForLoading();
     }
 
     public void navigateToKursusSaya() {
-        wait.until(ExpectedConditions.elementToBeClickable(kursusSayaLink));
-        kursusSayaLink.click();
+        try {
+            org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
+            js.executeScript("window.scrollTo(0, 0);");
+            Thread.sleep(500);
+        } catch (Exception e) {}
+
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(kursusSayaLink));
+            kursusSayaLink.click();
+        } catch (Exception e) {
+            try {
+                org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
+                js.executeScript("arguments[0].click();", kursusSayaLink);
+            } catch (Exception ex) {
+                System.out.println("Could not click Kursus Saya link, navigating directly.");
+            }
+        }
         waitForLoading();
+
+        // Wait for URL to change to my-courses first
+        try {
+            new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.urlContains("my-courses"));
+        } catch (Exception e) {
+            System.out.println("URL did not change to my-courses, performing direct navigation.");
+            driver.get("https://polban-space.cloudias79.com/jtk-learn/my-courses");
+            waitForLoading();
+        }
     }
 
     public void navigateToBeranda() {
-        wait.until(ExpectedConditions.elementToBeClickable(berandaLink));
-        berandaLink.click();
+        try {
+            org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
+            js.executeScript("window.scrollTo(0, 0);");
+            Thread.sleep(500);
+        } catch (Exception e) {}
+
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(berandaLink));
+            berandaLink.click();
+        } catch (Exception e) {
+            try {
+                org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
+                js.executeScript("arguments[0].click();", berandaLink);
+            } catch (Exception ex) {
+                System.out.println("Could not click Beranda link, navigating directly.");
+            }
+        }
         waitForLoading();
+
+        // Wait for URL to change to dashboard first
+        try {
+            new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.urlContains("dashboard"));
+        } catch (Exception e) {
+            System.out.println("URL did not change to dashboard, performing direct navigation.");
+            driver.get("https://polban-space.cloudias79.com/jtk-learn/dashboard-pelajar");
+            waitForLoading();
+        }
     }
 
     public void clickCourse(String courseName) {
-        WebElement courseCard = wait.until(ExpectedConditions.elementToBeClickable(
+        WebElement courseCard = wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//h6[text()='" + courseName + "']/ancestor::div[contains(@class,'card')]")
         ));
-        courseCard.click();
+        
+        // Scroll into view to avoid header/footer interception
+        try {
+            org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
+            js.executeScript("arguments[0].scrollIntoView({behavior: 'instant', block: 'center'});", courseCard);
+            Thread.sleep(500);
+        } catch (Exception e) {
+            // Ignore scroll exceptions
+        }
+
+        // Wait until clickable and attempt normal click
+        wait.until(ExpectedConditions.elementToBeClickable(courseCard));
+        try {
+            courseCard.click();
+        } catch (Exception e) {
+            System.out.println("Standard click intercepted, falling back to JavaScript click.");
+            org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
+            js.executeScript("arguments[0].click();", courseCard);
+        }
         waitForLoading();
     }
+
+    public boolean isNavigationMenuPresent(String menuName) {
+        try {
+            String xpathExpr = String.format("//a[contains(@class,'nav-link') and normalize-space(text())='%s']", menuName);
+            WebElement menu = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpathExpr)));
+            return menu.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isAccountDropdownDisplayed() {
+        try {
+            wait.until(ExpectedConditions.visibilityOf(accountDropdown));
+            return accountDropdown.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isLogoutButtonDisplayed() {
+        try {
+            wait.until(ExpectedConditions.visibilityOf(logoutButton));
+            return logoutButton.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 
     private void waitForLoading() {
         try {

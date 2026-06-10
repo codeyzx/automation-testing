@@ -44,6 +44,24 @@ public class LoginPage {
         loginButton.click();
     }
 
+    public void enterEmail(String email) {
+        wait.until(ExpectedConditions.visibilityOf(emailInput));
+        emailInput.clear();
+        emailInput.sendKeys(email);
+    }
+
+    public void enterPassword(String password) {
+        wait.until(ExpectedConditions.visibilityOf(passwordInput));
+        passwordInput.clear();
+        passwordInput.sendKeys(password);
+    }
+
+    public void clickLoginButton() {
+        wait.until(ExpectedConditions.elementToBeClickable(loginButton));
+        loginButton.click();
+    }
+
+
     public boolean isWelcomeTitleDisplayed() {
         try {
             wait.until(ExpectedConditions.visibilityOf(welcomeTitle));
