@@ -12,9 +12,10 @@ public class DriverFactory {
     public static WebDriver getDriver() {
         if (driver.get() == null) {
             WebDriverManager.chromedriver().setup();
-            
+
             ChromeOptions options = new ChromeOptions();
-            // Configure headless mode by default (recommended for CLI / automated runner environments)
+            // Configure headless mode by default (recommended for CLI / automated runner
+            // environments)
             String headlessProp = System.getProperty("headless", "true");
             if (Boolean.parseBoolean(headlessProp)) {
                 options.addArguments("--headless=new");
@@ -29,7 +30,7 @@ public class DriverFactory {
             webDriver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
             webDriver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(60));
             webDriver.manage().window().setSize(new org.openqa.selenium.Dimension(1920, 1080));
-            
+
             driver.set(webDriver);
         }
         return driver.get();

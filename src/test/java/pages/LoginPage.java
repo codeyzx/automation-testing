@@ -31,21 +31,22 @@ public class LoginPage {
     }
 
     public void navigateToLoginPage() {
-        driver.get("https://polban-space.cloudias79.com/jtk-learn/");
-        waitForPageLoad();
-    }
-
-    public void login(String email, String password) {
-        wait.until(ExpectedConditions.elementToBeClickable(emailInput));
-        emailInput.clear();
-        emailInput.sendKeys(email);
-        passwordInput.clear();
-        passwordInput.sendKeys(password);
-        loginButton.click();
+        int maxRetries = 3;
+        for (int i = 1; i <= maxRetries; i++) {
+            try {
+                driver.get("https://polban-space.cloudias79.com/jtk-learn/");
+                waitForPageLoad();
+                return; // success
+            } catch (Exception e) {
+                System.out.println("WARN: navigateToLoginPage attempt " + i + " failed: " + e.getMessage().split("\n")[0]);
+                if (i == maxRetries) throw e;
+                try { Thread.sleep(2000); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+            }
+        }
     }
 
     public void enterEmail(String email) {
-        wait.until(ExpectedConditions.visibilityOf(emailInput));
+        wait.until(ExpectedConditions.elementToBeClickable(emailInput));
         emailInput.clear();
         emailInput.sendKeys(email);
     }
@@ -61,7 +62,11 @@ public class LoginPage {
         loginButton.click();
     }
 
-
+    public void login(String email, String password) {
+        enterEmail(email);
+        enterPassword(password);
+        clickLoginButton();
+    }
     public boolean isWelcomeTitleDisplayed() {
         try {
             wait.until(ExpectedConditions.visibilityOf(welcomeTitle));

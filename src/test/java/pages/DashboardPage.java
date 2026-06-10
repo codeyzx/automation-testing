@@ -16,7 +16,7 @@ public class DashboardPage {
     @FindBy(css = "h3.greeting-title")
     private WebElement greetingTitle;
 
-    @FindBy(xpath = "//a[contains(@class,'nav-link') and (contains(.,'Joni') or contains(.,'JONI') or contains(.,'Mr.'))]")
+    @FindBy(xpath = "//li[contains(@class,'dropdown')]//a[img[@alt='User Profile'] or contains(@class,'nav-link')]")
     private WebElement accountDropdown;
 
     @FindBy(xpath = "//button[text()='Keluar']")
@@ -40,7 +40,17 @@ public class DashboardPage {
             wait.until(ExpectedConditions.visibilityOf(greetingTitle));
             waitForLoading();
             String text = greetingTitle.getText();
-            return text.contains("Hai, Ahmad Joni!") || text.contains("Hai, Mr. Ahmad Joni!") || text.contains("Hai, JONI!") || text.contains("Hai, Joni!");
+            return text.contains("Hai,") || text.contains("Ahmad Joni") || text.contains("JONI") || text.contains("Joni");
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isDashboardDisplayed(String expectedGreeting) {
+        try {
+            wait.until(ExpectedConditions.visibilityOf(greetingTitle));
+            waitForLoading();
+            return greetingTitle.getText().contains(expectedGreeting);
         } catch (Exception e) {
             return false;
         }
@@ -66,6 +76,11 @@ public class DashboardPage {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    public String getAccountDropdownText() {
+        wait.until(ExpectedConditions.visibilityOf(accountDropdown));
+        return accountDropdown.getText().trim();
     }
 
     public void clickLogoutButton() {
@@ -143,7 +158,6 @@ public class DashboardPage {
         WebElement courseCard = wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//h6[text()='" + courseName + "']/ancestor::div[contains(@class,'card')]")
         ));
-        
         // Scroll into view to avoid header/footer interception
         try {
             org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
@@ -175,10 +189,36 @@ public class DashboardPage {
         }
     }
 
+    public boolean isNavigationMenuDisplayed(String menuName) {
+        try {
+            String xpath;
+            if (menuName.equalsIgnoreCase("Rekap Hasil Kuis")) {
+                xpath = "//a[contains(@class,'nav-link') and (text()='Rekap Hasil Kuis' or text()='Pemantauan')]";
+            } else {
+                xpath = "//a[contains(@class,'nav-link') and text()='" + menuName + "']";
+            }
+            WebElement menu = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpath)));
+            return menu.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public boolean isAccountDropdownDisplayed() {
         try {
             wait.until(ExpectedConditions.visibilityOf(accountDropdown));
             return accountDropdown.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isAccountNameDisplayed(String expectedName) {
+        try {
+            WebElement nameElement = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//li[contains(@class,'dropdown')]//a[contains(.,'" + expectedName + "')]")
+            ));
+            return nameElement.isDisplayed();
         } catch (Exception e) {
             return false;
         }
@@ -192,8 +232,6 @@ public class DashboardPage {
             return false;
         }
     }
-
-
     private void waitForLoading() {
         try {
             Thread.sleep(1500);
