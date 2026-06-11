@@ -1,6 +1,6 @@
 Feature: Login Functionality
 
-  @Rafli
+  @TC01 @Login
   Scenario: Confirm successful login using instructor account
     Given user is on JTKLearn login page
     When user enters email "ahmadjoni@gmail.com"
@@ -13,6 +13,7 @@ Feature: Login Functionality
     And account menu should be displayed
     And logout submenu should be accessible
 
+  @LOGIN-1.0.2 @Login
   Scenario: Verify teacher can login using valid credentials
     Given user is on login page
     When user enters email "ahmadjoni@example.com"

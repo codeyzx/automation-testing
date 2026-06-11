@@ -6,6 +6,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import utils.TestConfig;
 import java.time.Duration;
 
 public class LoginPage {
@@ -34,7 +35,7 @@ public class LoginPage {
         int maxRetries = 3;
         for (int i = 1; i <= maxRetries; i++) {
             try {
-                driver.get("https://polban-space.cloudias79.com/jtk-learn/");
+                driver.get(TestConfig.LOGIN_URL);
                 waitForPageLoad();
                 return; // success
             } catch (Exception e) {

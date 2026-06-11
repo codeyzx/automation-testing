@@ -1,5 +1,6 @@
 Feature: Logout Functionality
 
+  @LOGOUT-2.2.1 @Logout
   Scenario: Check logout is successful for role Pelajar
     Given user opens JTKLearn login page
     And user logs in with valid Pelajar credentials

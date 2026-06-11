@@ -1,5 +1,6 @@
 Feature: My Course Progress
 
+  @TC-FR05-01 @MyCourse
   Scenario: Check progress percentage displays correctly as 33.333332%
     Given user opens JTKLearn login page
     And user logs in with valid Pelajar credentials

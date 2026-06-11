@@ -7,6 +7,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import utils.TestConfig;
 import java.time.Duration;
 
 public class DashboardPage {
@@ -119,7 +120,7 @@ public class DashboardPage {
             new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.urlContains("my-courses"));
         } catch (Exception e) {
             System.out.println("URL did not change to my-courses, performing direct navigation.");
-            driver.get("https://polban-space.cloudias79.com/jtk-learn/my-courses");
+            driver.get(TestConfig.MY_COURSES_URL);
             waitForLoading();
         }
     }
@@ -149,7 +150,7 @@ public class DashboardPage {
             new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.urlContains("dashboard"));
         } catch (Exception e) {
             System.out.println("URL did not change to dashboard, performing direct navigation.");
-            driver.get("https://polban-space.cloudias79.com/jtk-learn/dashboard-pelajar");
+            driver.get(TestConfig.STUDENT_DASHBOARD_URL);
             waitForLoading();
         }
     }

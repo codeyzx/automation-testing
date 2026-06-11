@@ -12,6 +12,7 @@ import pages.LoginPage;
 import pages.DashboardPage;
 import pages.MyCoursePage;
 import utils.DriverFactory;
+import utils.TestConfig;
 
 public class MyCourseProgressZeroSteps {
     private WebDriver driver = DriverFactory.getDriver();
@@ -28,8 +29,7 @@ public class MyCourseProgressZeroSteps {
             dashboardPage.clickAccountDropdown();
             dashboardPage.clickLogoutButton();
         }
-        // Use the joni@gmail.com account discovered during exploration for 0% progress
-        loginPage.login("joni@gmail.com", "joni");
+        loginPage.login(TestConfig.ZERO_PROGRESS_STUDENT_EMAIL, TestConfig.ZERO_PROGRESS_STUDENT_PASSWORD);
         Assert.assertTrue("Student dashboard was not displayed", dashboardPage.isDashboardDisplayed());
     }
 

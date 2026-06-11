@@ -1,4 +1,4 @@
-@Rafli
+@TC-FR05-02 @MyCourse
 Feature: My Course Progress
 
   Scenario: Verify progress tab after enrolling in a course without starting any instruction

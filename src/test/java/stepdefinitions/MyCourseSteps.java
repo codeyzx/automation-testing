@@ -4,36 +4,19 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 import org.junit.Assert;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.DashboardPage;
-import pages.LoginPage;
 import pages.CoursePage;
 import pages.MyCoursePage;
 import utils.DriverFactory;
-import java.time.Duration;
+import utils.UserTestDataManager;
 
 public class MyCourseSteps {
     private WebDriver driver = DriverFactory.getDriver();
     private DashboardPage dashboardPage = new DashboardPage(driver);
     private CoursePage coursePage = new CoursePage(driver);
     private MyCoursePage myCoursePage = new MyCoursePage(driver);
-
-    // Helper to click SweetAlert2 confirm/ok buttons reliably
-    private void clickSweetAlertConfirm(WebDriverWait wait, String buttonText) {
-        try {
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".swal2-popup")));
-            String xpath = "//div[contains(@class,'swal2-container')]//button[contains(@class,'swal2-confirm')]";
-            WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpath)));
-            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
-            Thread.sleep(1200); // brief pause for popup transition
-        } catch (Exception ex) {
-            System.out.println("WARN: SweetAlert not found or dismissed: " + ex.getMessage().split("\n")[0]);
-        }
-    }
+    private UserTestDataManager userTestDataManager = new UserTestDataManager(driver);
 
     @Given("user is enrolled in {string}")
     public void userIsEnrolledIn(String courseName) {
@@ -44,99 +27,12 @@ public class MyCourseSteps {
 
     @Given("a new student account exists with no enrolled courses")
     public void aNewStudentAccountExistsWithNoEnrolledCourses() {
-        // DO NOT quit/restart driver here to preserve existing driver lifecycle managed by Hooks
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
-        org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
-        try {
-            // Sederhanakan proses login admin dengan LoginPage
-            LoginPage loginPage = new LoginPage(driver);
-            loginPage.navigateToLoginPage();
-            loginPage.login("admin@example.com", "admin");
-
-            wait.until(ExpectedConditions.urlContains("dashboard-admin"));
-            driver.get("https://polban-space.cloudias79.com/jtk-learn/users");
-            Thread.sleep(3000);
-
-            // Delete if exists - use exact text match for "Pendaftaran Baru" and "pelajar"
-            java.util.List<WebElement> rows = driver.findElements(
-                    By.xpath("//tbody/tr[td[normalize-space(text())='Pendaftaran Baru'] and td[normalize-space(text())='pelajar']]"));
-            if (!rows.isEmpty()) {
-                System.out.println("DEBUG: Found existing Pendaftaran Baru user. Deleting...");
-                WebElement deleteBtn = rows.get(0).findElement(By.xpath(".//button[img[@alt='Hapus Pengguna']]"));
-                js.executeScript("arguments[0].scrollIntoView({block:'center'});", deleteBtn);
-                Thread.sleep(700);
-                js.executeScript("arguments[0].click();", deleteBtn);
-                Thread.sleep(1500);
-
-                // Click SweetAlert confirm (Ya, hapus!)
-                clickSweetAlertConfirm(wait, "Ya, hapus!");
-                Thread.sleep(1500);
-
-                // Click SweetAlert OK after deletion
-                clickSweetAlertConfirm(wait, "OK");
-                Thread.sleep(1500);
-
-                // Reload users page to ensure clean state
-                driver.get("https://polban-space.cloudias79.com/jtk-learn/users");
-                Thread.sleep(2000);
-            }
-
-            // Create user
-            WebElement openModalBtn = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[text()='Tambah']")));
-            js.executeScript("arguments[0].click();", openModalBtn);
-            Thread.sleep(1500);
-
-            WebElement nameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("nama")));
-            nameField.clear();
-            nameField.sendKeys("Pendaftaran Baru");
-
-            WebElement emailField = driver.findElement(By.name("email"));
-            emailField.clear();
-            emailField.sendKeys("pendaftaran_baru@example.com");
-
-            WebElement pwdField = driver.findElement(By.name("password"));
-            pwdField.clear();
-            pwdField.sendKeys("admin123");
-
-            WebElement maleRadio = driver.findElement(By.xpath("//input[@name='jenis_kelamin' and @value='L']"));
-            if (!maleRadio.isSelected()) {
-                js.executeScript("arguments[0].click();", maleRadio);
-            }
-
-            new org.openqa.selenium.support.ui.Select(driver.findElement(By.name("role"))).selectByValue("pelajar");
-            
-            WebElement addressField = driver.findElement(By.name("alamat"));
-            addressField.clear();
-            addressField.sendKeys("Politeknik Negeri Bandung");
-
-            WebElement submitBtn = driver.findElement(By.xpath("//form//button[@type='submit' or text()='Simpan']"));
-            js.executeScript("arguments[0].click();", submitBtn);
-            Thread.sleep(2000);
-
-            // Click SweetAlert OK after creating user
-            clickSweetAlertConfirm(wait, "OK");
-            Thread.sleep(1500);
-
-            // Log out admin to prepare for student login
-            WebElement profileDropdown = wait.until(ExpectedConditions.elementToBeClickable(
-                    By.xpath("//li[contains(@class,'dropdown')]//a[img[@alt='User Profile']]")));
-            js.executeScript("arguments[0].click();", profileDropdown);
-            Thread.sleep(600);
-            WebElement logoutBtn = wait.until(ExpectedConditions.elementToBeClickable(
-                    By.xpath("//button[text()='Keluar']")));
-            js.executeScript("arguments[0].click();", logoutBtn);
-            Thread.sleep(1500);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail("Failed to setup new student account: " + e.getMessage());
-        }
+        userTestDataManager.createStudentWithoutCourses();
     }
 
     @Given("the student successfully logs in")
     public void theStudentSuccessfullyLogsIn() {
-        pages.LoginPage loginPage = new pages.LoginPage(driver);
-        loginPage.login("pendaftaran_baru@example.com", "admin123");
+        userTestDataManager.loginAsNewStudent();
     }
 
     @When("user opens course {string}")

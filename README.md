@@ -1,96 +1,78 @@
-# JTKLearn Web Automation Testing Project
+# JTKLearn Web Automation Testing
 
-Project ini adalah implementasi testing automation untuk platform **JTKLearn** menggunakan **Cucumber JVM, Selenium Java, JUnit, dan WebDriverManager**. Pengujian difokuskan pada fungsionalitas utama bagi peran **Pelajar** (Student), yaitu fitur Logout dan Verifikasi Progres Kursus.
+Project ini berisi automation test untuk JTKLearn menggunakan Cucumber JVM, Selenium Java, JUnit 4, Maven, Page Object Model, PageFactory, dan WebDriverManager.
 
----
+## Scope Test Case
 
-## 🚀 Fitur Utama
-1. **Logout Functionality**: Memastikan pelajar dapat keluar dengan sukses dari sistem dan sesi dihapus dengan benar.
-2. **My Course Progress Validation**: Memverifikasi bahwa persentase kemajuan kursus (progress percentage) diperbarui secara akurat setelah menyelesaikan instruksi tertentu.
+| Area | Test Case | Feature file |
+| --- | --- | --- |
+| Login | `@TC01` | `src/test/resources/features/login.feature` |
+| Login | `@LOGIN-1.0.2` | `src/test/resources/features/login.feature` |
+| Logout | `@LOGOUT-2.2.1` | `src/test/resources/features/logout.feature` |
+| My Course | `@TC-FR05-01` | `src/test/resources/features/my_course.feature` |
+| My Course | `@TC-FR05-02` | `src/test/resources/features/my_course_progress_zero.feature` |
+| My Course | `@TC-FR05-04` | `src/test/resources/features/my_course_empty_progress.feature` |
 
----
+## Konsep yang Digunakan
 
-## 🛠️ Tech Stack & Dependency
-Project ini dikembangkan menggunakan teknologi testing terbaru:
-* **Java 17** (Temurin JDK)
-* **Maven** (Build Tool & Dependency Management)
-* **Selenium WebDriver (Java)** (Browser Automation)
-* **Cucumber JVM (Java & JUnit)** (Behavior Driven Development)
-* **JUnit 4** (Test Runner)
-* **WebDriverManager** (Automated Driver Management)
+- Cucumber feature files untuk skenario Gherkin.
+- Step Definition untuk menghubungkan Gherkin dengan kode Java.
+- Selenium WebDriver untuk interaksi browser.
+- Page Object Model untuk memisahkan aksi halaman dari step.
+- PageFactory melalui `@FindBy` dan `PageFactory.initElements(...)`.
+- Web locator menggunakan `id`, `css`, dan `xpath`.
+- WebDriverManager untuk setup ChromeDriver otomatis.
+- Maven Surefire untuk menjalankan test runner.
+- Cucumber report HTML dan JSON di folder `target/`.
 
-Semua dependensi dikonfigurasi dalam berkas [pom.xml](file:///d:/code/college/smt6/PPL/w14/pom.xml).
-
----
-
-## 📂 Struktur Folder Project
-Berikut adalah struktur folder project yang bersih dan modular sesuai dengan Best Practices:
+## Struktur Project
 
 ```text
-jtklearn-automation-testing/
-│
-├── pom.xml                                      # Konfigurasi Maven & Dependensi
-├── README.md                                    # Dokumentasi Utama Project
-├── TEST_RESULT.md                               # Laporan Hasil Pengujian & Bug
-│
-└── src/
-    └── test/
-        ├── java/                                # Kode Sumber Pengujian
-        │   ├── pages/                           # Page Object Model (POM)
-        │   │   ├── LoginPage.java
-        │   │   ├── DashboardPage.java
-        │   │   ├── CoursePage.java
-        │   │   └── MyCoursePage.java
-        │   │
-        │   ├── stepdefinitions/                 # Cucumber Step Definitions
-        │   │   ├── Hooks.java                   # Setup, Teardown, Screenshot-on-Failure
-        │   │   ├── LoginSteps.java
-        │   │   ├── LogoutSteps.java
-        │   │   └── MyCourseSteps.java
-        │   │
-        │   ├── runners/                         # Cucumber Test Runner
-        │   │   └── TestRunner.java
-        │   │
-        │   └── utils/                           # WebDriver & Driver Factory
-        │       └── DriverFactory.java
-        │
-        └── resources/                           # Resource Pendukung
-            ├── features/                        # Gherkin Feature Files
-            │   ├── logout.feature
-            │   └── my_course.feature
-            │
-            └── screenshots/                     # Folder Screenshot Evidence
-                └── my_course_failure.png        # Evidence Bug SUT
+src/test/java
+  pages/           Page Object classes
+  runners/         Cucumber test runner
+  stepdefinitions/ Cucumber step bindings
+  utils/           Driver, config, and test data helpers
+
+src/test/resources/features
+  login.feature
+  logout.feature
+  my_course.feature
+  my_course_progress_zero.feature
+  my_course_empty_progress.feature
 ```
 
----
+## Prasyarat
 
-## 💻 Cara Menjalankan Test
+- Java JDK 11 atau lebih baru.
+- Apache Maven 3.8 atau lebih baru.
+- Google Chrome.
 
-### 1. Prasyarat
-Pastikan Anda memiliki tools berikut terinstall pada komputer Anda:
-* Java JDK 17 atau yang lebih baru.
-* Apache Maven 3.8+.
-* Google Chrome Browser (WebDriverManager akan otomatis mengunduh driver yang sesuai).
+## Cara Menjalankan
 
-### 2. Eksekusi Test Suite (Headless Mode - Default)
-Secara default, pengujian akan dijalankan secara **headless** (tanpa memunculkan window browser) agar stabil di lingkungan CI/CD atau CLI:
+Default headless:
+
 ```bash
 mvn clean test
 ```
 
-### 3. Eksekusi Test Suite (Headed Mode / Visual Browser)
-Jika Anda ingin melihat jalannya pengujian di browser secara visual, jalankan perintah berikut:
+Browser terlihat:
+
 ```bash
 mvn test -Dheadless=false
 ```
 
----
+Override URL aplikasi:
 
-## 📊 Lokasi Laporan (Test Reports)
-Setelah pengujian selesai dijalankan, Cucumber akan otomatis membuat laporan interaktif di dalam folder `target/`:
+```bash
+mvn test -Dapp.url=https://polban-space.cloudias79.com/jtk-learn
+```
 
-1. **HTML Report**: Laporan interaktif lengkap dengan penataan CSS premium dan screenshot kegagalan tersemat:
-   * Lokasi: `target/cucumber-report.html`
-2. **JSON Report**: Laporan dalam format JSON mentah untuk integrasi tools eksternal:
-   * Lokasi: `target/cucumber-report.json`
+## Report
+
+Setelah test berjalan, Cucumber membuat report:
+
+- `target/cucumber-report.html`
+- `target/cucumber-report.json`
+
+Screenshot kegagalan disimpan lewat hook Cucumber di `target/failure-screenshot.png`.

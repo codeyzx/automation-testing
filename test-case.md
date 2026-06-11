@@ -1,214 +1,180 @@
-
 # JTKLearn Web Automation Testing - Test Case
 
 ## Environment
 
-* Application: JTKLearn
-* URL: [http://124.158.117.196:5000/](http://124.158.117.196:5000/)
-* Browser: Google Chrome
-* Automation Framework: Cucumber + Selenium Java
-* Testing Type: Functional Testing
+| Field | Value |
+| --- | --- |
+| Application | JTKLearn |
+| Default URL | `https://polban-space.cloudias79.com/jtk-learn` |
+| Browser | Google Chrome |
+| Framework | Cucumber JVM + Selenium Java |
+| Build tool | Maven |
+| Pattern | Page Object Model + PageFactory |
+| Report | Cucumber HTML and JSON |
 
----
+## Test Case Traceability
 
-# Test Case 1 - Login Functionality
+| Test Case | Area | Scenario | Feature file |
+| --- | --- | --- | --- |
+| `TC01` | Login | Instructor can login with valid credentials | `login.feature` |
+| `LOGIN-1.0.2` | Login | Teacher can login and see dashboard navigation | `login.feature` |
+| `LOGOUT-2.2.1` | Logout | Student can logout and return to login page | `logout.feature` |
+| `TC-FR05-01` | My Course | Course progress updates after completing instruction | `my_course.feature` |
+| `TC-FR05-02` | My Course | Enrolled course appears with 0% progress before instruction completion | `my_course_progress_zero.feature` |
+| `TC-FR05-04` | My Course | New student sees empty state in Dalam Progres tab | `my_course_empty_progress.feature` |
 
-## Test Case Information
+## TC01 - Login Instructor
 
-| Field        | Value                                                                                             |
-| ------------ | ------------------------------------------------------------------------------------------------- |
-| Test Case ID | TC01                                                                                              |
-| Module       | Authentication                                                                                    |
-| Type         | Positive                                                                                          |
-| Scenario     | Verifikasi User dengan hak akses Pengajar dapat masuk ke sistem menggunakan kredensial yang valid |
+**Preconditions**
 
----
+- Browser opens the JTKLearn login page.
+- Instructor account exists.
 
-## Preconditions (GIVEN)
+**Test Data**
 
-* Browser web sudah dibuka.
-* User berada pada antarmuka login aplikasi JTK Learn.
-* Data akun pengajar telah tersimpan dan valid di dalam sistem.
+| Field | Value |
+| --- | --- |
+| Email | `ahmadjoni@gmail.com` |
+| Password | `ahmadjoni` |
+| Role | Pengajar |
 
-### URL
+**Steps**
 
-```text
-http://124.158.117.196:5000/
-```
+1. Enter instructor email.
+2. Enter instructor password.
+3. Click `Masuk`.
 
----
+**Expected Result**
 
-## Test Data
+- Login succeeds.
+- Instructor dashboard is displayed.
+- Navigation menu and account menu are visible.
 
-| Field    | Value                                              |
-| -------- | -------------------------------------------------- |
-| Email    | [ahmadjoni@example.com](mailto:ahmadjoni@example.com) |
-| Password | ahmadjoni                                          |
-| Role     | Pengajar                                           |
+## LOGIN-1.0.2 - Login Teacher Dashboard Navigation
 
----
+**Preconditions**
 
-## Steps to Execute (WHEN)
+- Browser opens the JTKLearn login page.
+- Teacher account exists.
 
-1. User mengetik alamat email pengajar yang terdaftar pada kolom  **Email** .
-2. User memasukkan kata sandi yang sesuai pada kolom  **Password** .
-3. User mengeklik tombol aksi  **"Masuk"** .
+**Test Data**
 
----
+| Field | Value |
+| --- | --- |
+| Email | `ahmadjoni@example.com` |
+| Password | `ahmadjoni` |
+| Role | Pengajar |
 
-## Expected Result (THEN)
+**Steps**
 
-1. Proses autentikasi disetujui oleh sistem.
-2. User langsung dialihkan ke laman  **Dashboard Pengajar** .
-3. Pada bagian header navigasi muncul menu:
-   * Beranda
-   * Rekap Hasil Kuis
-   * Nama Akun User
+1. Enter teacher email.
+2. Enter teacher password.
+3. Click login button.
 
----
+**Expected Result**
 
-## Acceptance Criteria
+- User is redirected to teacher dashboard.
+- Menu `Beranda` and `Rekap Hasil Kuis` are displayed.
+- Account name is displayed.
 
-* Login berhasil menggunakan kredensial valid.
-* Sistem mengarahkan user ke Dashboard Pengajar.
-* Menu navigasi Pengajar tampil dengan lengkap.
-* Nama akun user tampil pada header aplikasi.
+## LOGOUT-2.2.1 - Logout Student
 
----
+**Preconditions**
 
-# Test Case 2 - My Course "Dalam Progres" Tab Verification
+- Student account exists.
+- Student is logged in.
 
-## Test Case Information
+**Test Data**
 
-| Field        | Value                                                                                                     |
-| ------------ | --------------------------------------------------------------------------------------------------------- |
-| Test Case ID | TC-FR05-01                                                                                                |
-| Module       | FR05 (My Course)                                                                                          |
-| Type         | Negative                                                                                                  |
-| Scenario     | Verifikasi tampilan tab "Dalam Progres" pada akun pelajar baru yang belum pernah mendaftar kursus manapun |
+| Field | Value |
+| --- | --- |
+| Email | `ahmadjonii@gmail.com` |
+| Password | `ahmadjoni` |
+| Role | Pelajar |
 
----
+**Steps**
 
-## Preconditions (GIVEN)
+1. Open account dropdown.
+2. Click logout button.
 
-1. Akun pelajar BARU dibuat (bukan akun lama) dan belum pernah mendaftar kursus manapun.
-2. Sistem memiliki kursus yang tersedia.
-3. Pelajar baru berhasil login.
+**Expected Result**
 
-### URL
+- User returns to login page.
+- Login page title contains `Selamat datang,`.
 
-```text
-http://124.158.117.196:5000/
-```
+## TC-FR05-01 - My Course Progress After Completion
 
----
+**Preconditions**
 
-## Test Data
+- Student account exists.
+- Student is enrolled in `Kursus Ahli Pedang`.
 
-| Field              | Value                                                            |
-| ------------------ | ---------------------------------------------------------------- |
-| Username           | [pendaftaran_baru@example.com](mailto:pendaftaran_baru@example.com) |
-| Password           | admin123                                                         |
-| Enrollment History | 0 kursus                                                         |
-| User Type          | Pelajar Baru                                                     |
+**Steps**
 
----
+1. Login as student.
+2. Open `Kursus Ahli Pedang`.
+3. Complete instruction `Dasar-Dasar Menggunakan Pedang`.
+4. Open `Kursus Saya`.
+5. Open `Dalam Progres` tab.
 
-## Steps to Execute (WHEN)
+**Expected Result**
 
-1. Buat akun pelajar baru dengan email `pendaftaran_baru@example.com`.
-2. Login ke aplikasi JTK Learn.
-3. Klik menu **"Kursus Saya"** pada navigasi utama.
-4. Pastikan tab **"Dalam Progres"** aktif secara default.
-5. Amati seluruh tampilan halaman.
+- Progress percentage displays `33.333332%`.
+- Course does not appear in `Selesai` tab.
 
----
+## TC-FR05-02 - My Course Zero Progress
 
-## Expected Result (THEN)
+**Preconditions**
 
-1. Halaman **Kursus Saya** berhasil dimuat.
-2. Tab **"Dalam Progres"** aktif (terpilih).
-3. Sistem menampilkan pesan  **"Kursus belum ada"** .
-4. Tidak ada card kursus yang ditampilkan.
-5. Tab **"Selesai"** tersedia dan dapat diklik.
+- Student account exists.
+- Student is enrolled in `Odoo Course`.
+- No instruction has been completed.
 
----
+**Steps**
 
-## Acceptance Criteria
+1. Login as student.
+2. Open `Kursus Saya`.
+3. Open `Dalam Progres` tab.
 
-* Halaman Kursus Saya berhasil diakses tanpa error.
-* Tab Dalam Progres menjadi tab aktif saat pertama kali dibuka.
-* Pesan "Kursus belum ada" ditampilkan dengan benar.
-* Tidak terdapat course card pada daftar kursus.
-* Tab Selesai tersedia dan dapat digunakan untuk navigasi.
+**Expected Result**
 
----
+- `Odoo Course` is displayed.
+- Progress percentage is `0%`.
+- Progress bar is empty.
+- Course does not appear in `Selesai` tab.
 
-# Notes for Automation
+## TC-FR05-04 - My Course Empty State
 
-## Recommended Automation Approach
+**Preconditions**
 
-* Use Page Object Model (POM)
-* Use Page Factory for element initialization
-* Use Explicit Wait (`WebDriverWait`)
-* Avoid hardcoded `Thread.sleep()`
-* Generate HTML and JSON report
-* Capture screenshot automatically when scenario fails
+- New student account exists.
+- Student has no enrolled courses.
 
----
+**Test Data**
 
-# Recommended Feature Files
+| Field | Value |
+| --- | --- |
+| Email | `pendaftaran_baru@example.com` |
+| Password | `admin123` |
+| Role | Pelajar |
 
-## login.feature
+**Steps**
 
-```gherkin
-Feature: Authentication Login
+1. Create new student account.
+2. Login as new student.
+3. Open `Kursus Saya`.
 
-  Scenario: Verify teacher can login using valid credentials
-    Given user is on login page
-    When user enters email "ahmadjoni@example.com"
-    And user enters password "ahmadjoni"
-    And user clicks login button
-    Then user should be redirected to teacher dashboard
-    And navigation menu should display:
-      | Beranda |
-      | Rekap Hasil Kuis |
-    And account name should be displayed
-```
+**Expected Result**
 
----
+- `Dalam Progres` tab is active.
+- System displays `Kursus belum ada`.
+- No course card is displayed.
+- `Selesai` tab is available and clickable.
 
-## my_course_empty_progress.feature
+## Automation Notes
 
-```gherkin
-Feature: My Course - Empty Progress Tab
-
-  Scenario: Verify Dalam Progres tab for new student with no enrolled courses
-    Given a new student account exists with no enrolled courses
-    And the student successfully logs in
-    When the student navigates to "Kursus Saya"
-    Then the "Dalam Progres" tab should be active
-    And the system should display message "Kursus belum ada"
-    And no course card should be displayed
-    And the "Selesai" tab should be available and clickable
-```
-
----
-
-# Traceability
-
-| Requirement          | Test Case  |
-| -------------------- | ---------- |
-| Authentication Login | TC01       |
-| Valid Teacher Login  | TC01       |
-| FR05 - My Course     | TC-FR05-01 |
-| Tab Dalam Progres    | TC-FR05-01 |
-| Empty Course State   | TC-FR05-01 |
-| New Student Behavior | TC-FR05-01 |
-
----
-
-# Test Objective
-
-1. Memastikan user dengan role **Pengajar** dapat melakukan login menggunakan kredensial yang valid dan diarahkan ke Dashboard Pengajar sesuai hak aksesnya.
-2. Memastikan akun **Pelajar Baru** yang belum pernah mendaftar kursus mendapatkan tampilan yang benar pada menu  **Kursus Saya** , khususnya pada tab  **Dalam Progres** , dengan menampilkan kondisi kosong (empty state) yang sesuai dan tidak menampilkan data kursus yang tidak relevan.
+- Feature files contain tags matching each test case ID.
+- Page classes hold locators and page actions.
+- Step Definition classes stay focused on Cucumber flow.
+- Test setup helpers live in `utils.UserTestDataManager`.
+- Runtime constants live in `utils.TestConfig`.
