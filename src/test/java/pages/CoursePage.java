@@ -13,7 +13,7 @@ public class CoursePage {
     private WebDriver driver;
     private WebDriverWait wait;
 
-    @FindBy(xpath = "//button[contains(@class,'button-overview') or contains(text(),'Kursus')]")
+    @FindBy(xpath = "//button[contains(@class,'button-overview') or contains(text(),'Kursus') or contains(text(),'Lihat')]")
     private WebElement startOrContinueCourseButton;
 
     @FindBy(css = "h3.course-title")
@@ -26,8 +26,20 @@ public class CoursePage {
     }
 
     public void startOrContinueCourse() {
+        try {
+            org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
+            js.executeScript("arguments[0].scrollIntoView({behavior: 'instant', block: 'center'});", startOrContinueCourseButton);
+            Thread.sleep(500);
+        } catch (Exception e) {}
+
         wait.until(ExpectedConditions.elementToBeClickable(startOrContinueCourseButton));
-        startOrContinueCourseButton.click();
+        try {
+            startOrContinueCourseButton.click();
+        } catch (Exception e) {
+            System.out.println("Start/continue button click intercepted, using JavascriptExecutor click.");
+            org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
+            js.executeScript("arguments[0].click();", startOrContinueCourseButton);
+        }
         waitForLoading();
     }
 
